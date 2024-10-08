@@ -11,15 +11,31 @@ from baseThreads import *
 import time
 
 #déclaration des sémaphores: valeur init, info pour le debug
-semaphore1 = infem.Semaphore(3,"info sur le sémaphore 1")
+sem1 = infem.Semaphore(4,"Embarquement voiture")
+sem2 = infem.Semaphore(0,"Debarquement voiture")
+sem3 = infem.Semaphore(0,"Aller")
+sem4 = infem.Semaphore(0,"Retour")
 
 def ferryRun(self):
     """ fonction principale du bac. Les methodes principales sont:
         - self.traverser()
         - self.revenir()
     """
-    self.log("ne fait rien…")
-    time.sleep(1)
+    while True:
+        self.log("En attente des voitures")
+        for i in range(4):
+            sem3.acquire()
+        self.log("Eh ze bardi !")
+        self.traverser()
+        for i in range(4):
+            sem2.release()
+        for i in range(4):
+            sem4.acquire()
+        self.log("Eh za revient !")
+        self.revenir()
+        for i in range(4):
+            sem1.release()
+            
 
 def carRun(self):
     """ fonction principale de chaque voiture. Les méthodes principales sont:
@@ -27,9 +43,15 @@ def carRun(self):
         - self.embarquer()
         - self.debarquer()
     """
-    self.avancer()
-    self.log("devant l'eau!")
-    time.sleep(1)
+    while True:
+        self.avancer()
+        self.log("Devant l'eau!")
+        sem1.acquire()
+        self.embarquer()
+        sem3.release()
+        sem2.acquire()
+        self.debarquer()
+        sem4.release()
 
 def terminateCalled(self):
     """ fonction appelée lors d'un clic sur le bouton de terminaison """
